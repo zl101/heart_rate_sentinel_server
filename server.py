@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 import requests
 import logging
 import datetime
+import numpy
 from valpatient import validatePatient
 from valhr import validateHeartRate
 from valpid import validatePid
@@ -76,6 +77,19 @@ def getAllHr(patient_id):
     if(validatePid(patient_id, patientDict, heartrateDict) == -1):
         return "no hr to return"
     return str([k[CONST_HRKEY] for k in heartrateDict[patient_id]])
+
+
+@app.route("/api/heart_rate/average/<patient_id>", methods=["GET"])
+def getAllAvg(patient_id):
+    """
+    look up patient and return avg of all heart rates
+
+    :returns: string of avg heart rate
+    """
+    if(validatePid(patient_id, patientDict, heartrateDict) == -1):
+        return "no hr to return"
+    return str(numpy.average([float(k[CONST_HRKEY]) for k in heartrateDict[patient_id]]))
+
 
 if __name__ == "__main__":
     logging.basicConfig(filename='server.log', level=logging.INFO,
