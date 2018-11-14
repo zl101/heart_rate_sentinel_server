@@ -4,6 +4,8 @@ import logging
 import datetime
 from valpatient import validatePatient
 from valhr import validateHeartRate
+from valpid import validatePid
+from istachy import checkTachy
 app = Flask(__name__)
 patientDict = {}
 heartrateDict = {}
@@ -12,6 +14,7 @@ CONST_EMAILKEY = "attending_email"
 CONST_AGEKEY = "user_age"
 CONST_HRKEY = "heart_rate"
 CONST_DTK = "datetime"
+
 
 @app.route("/api/new_patient", methods=["POST"])
 def createPatient():
@@ -43,6 +46,20 @@ def addHR():
                                            CONST_HRKEY: r[CONST_HRKEY]})
     return "Heart Rate Added"
 
+
+@app.route("/api/status/<patient_id>", methods=["GET"])
+def findTachy(patient_id):
+    """
+    given patient id, validates that hr exists, and then check tachycardic
+
+    :returns: 1 if tachycardic, -1 if not, 0 if error
+    """
+    if(validatePid(patient_id, patientDict, heartrateDict) == -1):
+        return "0"
+    in1 = patientDict[patient_id][CONST_AGEKEY]
+    in2 = heartrateDict[patient_id][-1][CONST_HRKEY]
+    result = checkTachy(in1, in2)
+    return str(result)
 
 
 if __name__ == "__main__":

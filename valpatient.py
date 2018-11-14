@@ -20,7 +20,7 @@ def validatePatient(input):
         logging.error("user age missing")
         return -1
     try:
-        if(int(input["user_age"]) < 0):
+        if(float(input["user_age"]) < 0):
             logging.errror("user age out of bounds")
             return -1
         if(int(input["patient_id"]) < 0):
