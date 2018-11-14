@@ -52,15 +52,30 @@ def findTachy(patient_id):
     """
     given patient id, validates that hr exists, and then check tachycardic
 
+    Returns in format 1|datetime
+
     :returns: 1 if tachycardic, -1 if not, 0 if error
     """
     if(validatePid(patient_id, patientDict, heartrateDict) == -1):
         return "0"
     in1 = patientDict[patient_id][CONST_AGEKEY]
     in2 = heartrateDict[patient_id][-1][CONST_HRKEY]
+    arg3 = heartrateDict[patient_id][-1][CONST_DTK]
     result = checkTachy(in1, in2)
-    return str(result)
+    ret = str(result) + "|" + str(arg3)
+    return ret
 
+
+@app.route("/api/heart_rate/<patient_id>", methods=["GET"])
+def getAllHr(patient_id):
+    """
+    look up patient and returns all heart rates recorded
+
+    :returns: string of all hr's
+    """
+    if(validatePid(patient_id, patientDict, heartrateDict) == -1):
+        return "no hr to return"
+    return str([k[CONST_HRKEY] for k in heartrateDict[patient_id]])
 
 if __name__ == "__main__":
     logging.basicConfig(filename='server.log', level=logging.INFO,
