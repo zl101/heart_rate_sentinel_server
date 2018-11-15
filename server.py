@@ -7,6 +7,7 @@ from valpatient import validatePatient
 from valhr import validateHeartRate
 from valpid import validatePid
 from istachy import checkTachy
+from intervalavg import intervalAvgHelper
 app = Flask(__name__)
 patientDict = {}
 heartrateDict = {}
@@ -15,6 +16,7 @@ CONST_EMAILKEY = "attending_email"
 CONST_AGEKEY = "user_age"
 CONST_HRKEY = "heart_rate"
 CONST_DTK = "datetime"
+C = "heart_rate"
 
 
 @app.route("/api/new_patient", methods=["POST"])
@@ -88,10 +90,28 @@ def getAllAvg(patient_id):
     """
     if(validatePid(patient_id, patientDict, heartrateDict) == -1):
         return "no hr to return"
-    return str(numpy.average([float(k[CONST_HRKEY]) for k in heartrateDict[patient_id]]))
+    return str(numpy.average([float(k[C]) for k in heartrateDict[patient_id]]))
+
+
+@app.route("/api/heart_rate/interval_average", methods=["POST"])
+def getAvgSince():
+    """
+    Receives patient id, and datestring and returns hr since that datestring
+
+    :returns: -1 or heart rate
+    """
+    r = request.get_json()
+    res = intervalAvgHelper(r, patientDict, heartrateDict)
+    if res == -1:
+        return "Error"
+    else:
+        return str(res)
 
 
 if __name__ == "__main__":
+    """
+    Runs server, intializes logging
+    """
     logging.basicConfig(filename='server.log', level=logging.INFO,
                         format='%(asctime)s %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
