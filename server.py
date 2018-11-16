@@ -3,6 +3,8 @@ import requests
 import logging
 import datetime
 import numpy
+import sendgrid
+from sendgrid.helpers.mail import *
 from valpatient import validatePatient
 from valhr import validateHeartRate
 from valpid import validatePid
@@ -17,6 +19,7 @@ CONST_AGEKEY = "user_age"
 CONST_HRKEY = "heart_rate"
 CONST_DTK = "datetime"
 C = "heart_rate"
+KE = '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'
 
 
 @app.route("/api/new_patient", methods=["POST"])
@@ -47,6 +50,7 @@ def addHR():
         return "invalid input"
     heartrateDict[r[CONST_PIDKEY]].append({CONST_DTK: datetime.datetime.now(),
                                            CONST_HRKEY: r[CONST_HRKEY]})
+    findTachy(r[CONST_PIDKEY])
     return "Heart Rate Added"
 
 
@@ -65,6 +69,15 @@ def findTachy(patient_id):
     in2 = heartrateDict[patient_id][-1][CONST_HRKEY]
     arg3 = heartrateDict[patient_id][-1][CONST_DTK]
     result = checkTachy(in1, in2)
+    if result == 1:
+        sg = sendgrid.SendGridAPIClient(apikey=KE)
+        from_email = Email("noreply@hrserver.com")
+        to_email = Email(patientDict[patient_id][CONST_EMAILKEY])
+        subject = "Tachycardic"
+        contentstr = "Your last recorded heart rate was tachycardic"
+        content = Content("text/plain", contentstr)
+        mail = Mail(from_email, subject, to_email, content)
+        response = sg.client.mail.send.post(request_body=mail.get())
     ret = str(result) + "|" + str(arg3)
     return ret
 
@@ -116,4 +129,4 @@ if __name__ == "__main__":
                         format='%(asctime)s %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p')
     logging.info("Starting New Log...")
-    app.run(host="127.0.0.1")
+    app.run(host="0.0.0.0")
