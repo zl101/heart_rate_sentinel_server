@@ -4,6 +4,7 @@ import logging
 import datetime
 import numpy
 import sendgrid
+import os
 from sendgrid.helpers.mail import *
 from valpatient import validatePatient
 from valhr import validateHeartRate
@@ -19,8 +20,7 @@ CONST_AGEKEY = "user_age"
 CONST_HRKEY = "heart_rate"
 CONST_DTK = "datetime"
 C = "heart_rate"
-KE = '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'
-
+KE = os.environ.get('SENDGRID_API_KEY')
 
 @app.route("/api/new_patient", methods=["POST"])
 def createPatient():
