@@ -8,3 +8,5 @@
 + Prefer patient age entered as float, so 6 months would be 0.5
 + Requires patient id's to be positive integers
 + Check tachycardic based on values from wikipedia
++ Sakai is not accepting submissions, currently deployed at 
+vcm-7452.vm.duke.edu:5000
